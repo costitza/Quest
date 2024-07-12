@@ -1,0 +1,32 @@
+.AudioControl {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1em;
+}
+
+.AudioControl button {
+    background-color: #61dafb; /* Button color */
+    color: white; /* Text color */
+    border: none; /* Remove default border */
+    padding: 10px 20px; /* Button padding */
+    margin: 10px; /* Space between buttons */
+    font-size: 16px; /* Text size */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+.AudioControl button:hover {
+    background-color: #21a1f1; /* Darker blue on hover */
+}
+
+.AudioControl button:disabled {
+    background-color: #ccc; /* Gray color for disabled state */
+    cursor: not-allowed; /* Not-allowed cursor for disabled state */
+}
+
+.AudioControl h2 {
+    color: #61dafb; /* Title color */
+    margin-bottom: 1em; /* Space below the title */
+}

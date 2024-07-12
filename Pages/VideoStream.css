@@ -1,0 +1,16 @@
+.VideoStream {
+  margin-top: 2em;
+  text-align: center;
+}
+
+.VideoStream h2 {
+  margin-bottom: 1em;
+  color: #61dafb;
+}
+
+.VideoStream img {
+  max-width: 90%;
+  border: 5px solid #61dafb;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
