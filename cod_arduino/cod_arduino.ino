@@ -1,8 +1,34 @@
 #include <Servo.h>
+#include <Arduino.h>
+#include <NewPing.h>
+#include <DHT.h>
+
+// Ultrasonic definitions
+const int FRONT_TRIG_PIN = 27;
+const int FRONT_ECHO_PIN = 29;
+const int RIGHT_TRIG_PIN = 23;
+const int RIGHT_ECHO_PIN = 25;
+const int LEFT_TRIG_PIN = 19;
+const int LEFT_ECHO_PIN = 21;
+const int BACK_TRIG_PIN = 15;
+const int BACK_ECHO_PIN = 17;
+const int MAX_DISTANCE = 200;
+
+// Create NewPing instances for each sensor
+NewPing front_sensor(FRONT_TRIG_PIN, FRONT_ECHO_PIN, MAX_DISTANCE);
+NewPing right_sensor(RIGHT_TRIG_PIN, RIGHT_ECHO_PIN, MAX_DISTANCE);
+NewPing left_sensor(LEFT_TRIG_PIN, LEFT_ECHO_PIN, MAX_DISTANCE);
+NewPing back_sensor(BACK_TRIG_PIN, BACK_ECHO_PIN, MAX_DISTANCE);
+
+// Define pin for DHT sensor
+const int DHT_PIN = 31;  // GPIO pin connected to DHT11 sensor
+
+// Initialize DHT sensor
+DHT dht(DHT_PIN, DHT11);
 
 // Motor pin definitions
 const int motorPins[4][2] = {{A2, A3}, {A5, A4}, {9, 10}, {A0, A1}}; // Pins for four motors
-//                    fata stanga, fata dreapta, spate stanga, spate dreapta
+//                    
 const int motorEnPins[2] = {3, 11}; // Enable pin for the motors
 
 // Servo pin definitions
@@ -34,6 +60,10 @@ void setup() {
     for (int i = 0; i < 4; i++) {
         legServos[i].attach(legServosPins[i]);
     }
+
+    // Initialize DHT sensor
+    dht.begin();
+    Serial.println("DHT sensor initialized.");
 
     Serial.begin(115200); // Match the baud rate used in Raspberry Pi code
     Serial.println("Arduino is ready to receive commands");
@@ -290,6 +320,16 @@ void adjustLegsStretched() {
 }
 
 void loop() {
+  // Read distances from ultrasonic sensors
+  int front_distance = front_sensor.ping_cm();
+  int right_distance = right_sensor.ping_cm();
+  int left_distance = left_sensor.ping_cm();
+  int back_distance = back_sensor.ping_cm();
+
+  // Read temperature and humidity from DHT sensor
+  float temperature = dht.readTemperature();
+  float humidity = dht.readHumidity();
+
   if (Serial.available() > 0) {
         String incomingString = Serial.readStringUntil('\n');
 
@@ -306,5 +346,18 @@ void loop() {
 
             driveWheels(direction, power);
         }
+
+        // Print distances and DHT data to Serial
+        Serial.print(front_distance);
+        Serial.print(",");
+        Serial.print(right_distance);
+        Serial.print(",");
+        Serial.print(left_distance);
+        Serial.print(",");
+        Serial.print(back_distance);
+        Serial.print(",");
+        Serial.print(temperature);
+        Serial.print(",");
+        Serial.println(humidity);
     }
 }
