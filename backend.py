@@ -19,12 +19,12 @@ CORS(app, supports_credentials=True)
 app.secret_key = 'supersecretkey'
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
-# Establish serial connection to Arduino Mega for distance sensors
+
 arduino = serial.Serial('/dev/ttyS0', 115200, timeout=1)
 arduino.flush()
 
 
-# Function to connect to Pixhawk
+
 def connect_pixhawk():
     ports = ['/dev/ttyACM0', '/dev/ttyACM1']
     for port in ports:
@@ -38,7 +38,7 @@ def connect_pixhawk():
     raise Exception("Could not connect to Pixhawk on any known port")
 
 
-# Establish Pixhawk connection
+
 pixhawk_connection = connect_pixhawk()
 
 pixhawk_connection.wait_heartbeat()
@@ -52,24 +52,21 @@ pixhawk_connection.mav.request_data_stream_send(
 )
 
 
-# Function to disable pre-arm checks
 def disable_pre_arm_checks():
     print("Disabling specific pre-arm checks...")
     pixhawk_connection.mav.param_set_send(
         pixhawk_connection.target_system,
         pixhawk_connection.target_component,
         b'ARMING_CHECK',
-        0,  # Disables all pre-arm checks
+        0, 
         mavutil.mavlink.MAV_PARAM_TYPE_INT32
     )
-    # Wait for the parameter to be set
     eventlet.sleep(2)
 
 
 disable_pre_arm_checks()
 
 
-# Function to set stabilize mode
 def set_stabilize_mode():
     mode_id = pixhawk_connection.mode_mapping().get('STABILIZE')
     if mode_id is None:
@@ -81,9 +78,8 @@ def set_stabilize_mode():
         mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
         mode_id)
 
-    # Check if the mode has been set successfully by reading the current mode
     start_time = time.monotonic()
-    while time.monotonic() - start_time < 5:  # 5 seconds timeout
+    while time.monotonic() - start_time < 5: 
         ack_msg = pixhawk_connection.recv_match(type='HEARTBEAT', blocking=True, timeout=1)
         if ack_msg:
             current_mode = mavutil.mode_string_v10(ack_msg)
@@ -98,7 +94,6 @@ def set_stabilize_mode():
 set_stabilize_mode()
 
 
-# Function to arm the Pixhawk
 def arm_command():
     print("Arming Pixhawk...")
     pixhawk_connection.mav.command_long_send(
@@ -108,7 +103,6 @@ def arm_command():
         0, 1, 0, 0, 0, 0, 0, 0)
 
 
-# Function to disarm the Pixhawk
 def disarm_command():
     print("Disarming Pixhawk...")
     pixhawk_connection.mav.command_long_send(
@@ -118,7 +112,6 @@ def disarm_command():
         0, 0, 0, 0, 0, 0, 0, 0)
 
 
-# Function to confirm disarm status
 def confirm_disarm():
     print("Confirming disarm status...")
     start_time = time.monotonic()
@@ -137,7 +130,6 @@ autonomous_mode = False
 last_person_time = None
 
 
-# Function to read data from Arduino
 def read_serial_data():
     buffer = ""
     while True:
@@ -149,7 +141,6 @@ def read_serial_data():
         eventlet.sleep(0.01)
 
 
-# Function to read data from Pixhawk
 def read_pixhawk_data():
     global armed, autonomous_mode
     while True:
@@ -331,23 +322,16 @@ def displayFrame(frame, detections):
     for detection in detections:
         bbox = frameNorm(frame, (detection.xmin, detection.ymin, detection.xmax, detection.ymax))
 
-        # Draw the bounding box
-        color = (0, 255, 0)  # Green color for the bounding box
+        color = (0, 255, 0) 
         cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, 2)
 
-        # Prepare text labels
         label = labelMap[detection.label]
         confidence = f"{int(detection.confidence * 100)}%"
         text = f"{label} {confidence}"
 
-        # Get text size and background size
         (w, h), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1)
         text_bg_coords = ((bbox[0], bbox[1] - h - 10), (bbox[0] + w, bbox[1]))
-
-        # Draw text background rectangle
         cv2.rectangle(frame, text_bg_coords[0], text_bg_coords[1], color, -1)
-
-        # Draw text
         cv2.putText(frame, text, (bbox[0], bbox[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 1, cv2.LINE_AA)
 
         if label == "person":
@@ -421,13 +405,12 @@ def autonomous(detection):
         print("Detected person to the right")
         arduino.write(("144" + '\n').encode())
     elif current_state == "middle":
-        # Calculate distance to the person
         person_depth = detection.spatialCoordinates.z
         print(f"Person depth: {person_depth} mm")
-        if person_depth > 700:  # 700 mm or 70 cm
+        if person_depth > 700: 
             print("Person centered, moving forward")
-            arduino.write(("111" + '\n').encode())  # Example forward command
-        elif person_depth < 700:  # Person is too close
+            arduino.write(("111" + '\n').encode()) 
+        elif person_depth < 700: 
             print("Person too close, staying")
             arduino.write(("10" + '\n').encode())
 
