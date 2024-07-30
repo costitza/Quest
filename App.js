@@ -3,7 +3,6 @@ import './App.css';
 import VideoStream from './Pages/VideoStream';
 import SensorData from './Pages/SensorData';
 import Login from './Pages/Login';
-import AudioControl from './Pages/AudioControl'; // Adjust the path to match your structure
 
 function App() {
     const [loggedIn, setLoggedIn] = useState(false);
@@ -20,7 +19,6 @@ function App() {
                     <>
                         <VideoStream />
                         <SensorData />
-                        <AudioControl />
                     </>
                 )}
             </header>
