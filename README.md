@@ -23,5 +23,4 @@ Pe de altă parte, în modul de zbor, Quest poate accesa rapid camerele mari sau
 https://github.com/costitza/Quest/assets/100477075/ca2bd18d-6aa7-4dbe-9a57-eb925d2cb1f7
 
 
-https://github.com/costitza/Quest/assets/100477075/5aaa34f7-0689-4f0e-88a1-301ee25c93a8
 
